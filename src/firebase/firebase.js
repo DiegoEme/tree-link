@@ -33,8 +33,6 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_APP_ID,
 };
 
-console.log(firebaseConfig);
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -42,4 +40,14 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { app, auth, db, storage };
+const userExists = async (uid) => {
+  //to search in db we use refs
+  //the below in going to search isnide db a collection called users and inside the reference called uid
+  const docRef = doc(db, "users", uid);
+  const res = await getDoc(docRef);
+  console.log("res", res);
+
+  return res.exists();
+};
+
+export { app, auth, db, storage, userExists };

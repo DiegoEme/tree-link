@@ -70,3 +70,16 @@
       }
     };
   ```
+
+  - in login.jsx import onAuthStateChanged from firebase/auth and handle when an user is logged in or not using the useEffect Hook
+  - How to know when a user is already in the db? go to firebase.js and add
+
+  ```
+  const userExists = async (uid) => {
+
+    const docRef = doc(db, 'users', uid)
+    const res = await getDoc(docRef)
+
+    return res.exists()
+  }
+  ```
