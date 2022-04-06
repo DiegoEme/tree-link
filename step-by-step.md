@@ -83,3 +83,5 @@
     return res.exists()
   }
   ```
+
+  - Depending on wether the user is logged in or not redirect the user to certain pages using the navigate hook from react-router-dom

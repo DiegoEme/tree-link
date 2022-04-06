@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth, userExists } from "../firebase/firebase";
+import AuthProvider from "../components/authProvider";
 
 function LoginView() {
-  const [currentUser, setCurrentUser] = useState(null);
+  //const [currentUser, setCurrentUser] = useState(null);
   const [state, setState] = useState(0);
+  const navigate = useNavigate();
 
   /* 
   State
@@ -19,29 +22,29 @@ function LoginView() {
   4: no hay nadie logueado
   */
 
-  useEffect(() => {
+  /*   useEffect(() => {
     setState(1);
-    onAuthStateChanged(auth, handleUserStateChanged);
-  }, []);
-
-  const handleUserStateChanged = async (user) => {
-    if (user) {
-      //if user exits it means it is already in db
-      const isRegistered = await userExists(user.uid);
-      if (isRegistered) {
-        //TODO: redirect user to dashboard
-        setState(2);
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        //if user exits it means it is already in db
+        const isRegistered = await userExists(user.uid);
+        if (isRegistered) {
+          //TODO: redirect user to dashboard
+          navigate("/dashboard");
+          setState(2);
+        } else {
+          //TODO: redirect to choose user name
+          navigate("/choose-username");
+          setState(3);
+        }
+        setCurrentUser(true);
       } else {
-        //TODO: redirect to choose user name
-        setState(3);
+        setState(4);
+        setCurrentUser(null);
+        console.log("no hay nadie autenticado");
       }
-      setCurrentUser(true);
-    } else {
-      setState(4);
-      setCurrentUser(null);
-      console.log("no hay nadie autenticado");
-    }
-  };
+    });
+  }, [navigate]); */
 
   const handleOnclick = async () => {
     const googleProvider = new GoogleAuthProvider();
@@ -58,6 +61,18 @@ function LoginView() {
     await signinWithGoogle(googleProvider);
   };
 
+  const handleUserLoggedIn = () => {
+    navigate("/dashboard");
+  };
+
+  const handleUserNotLoggedIn = () => {
+    setState(4);
+  };
+
+  const handleUserNotRegistered = () => {
+    navigate("/choose-username");
+  };
+
   if (state === 2) {
     return <div>Estas autenticado y registrado</div>;
   }
@@ -68,15 +83,19 @@ function LoginView() {
 
   if (state === 4) {
     return (
-      <div>
-        {currentUser && (
-          <button onClick={handleOnclick}>Login with Google</button>
-        )}
-      </div>
+      <div>{<button onClick={handleOnclick}>Login with Google</button>}</div>
     );
   }
 
-  return <div>Loading...</div>;
+  return (
+    <AuthProvider
+      onUserLoggedIn={handleUserLoggedIn}
+      onUserNotLoggedIn={handleUserNotLoggedIn}
+      onUserNotRegistered={handleUserNotRegistered}
+    >
+      <div>Loading...</div>
+    </AuthProvider>
+  );
 }
 
 export default LoginView;
